@@ -69,10 +69,18 @@ function validateProduct1(product) {
 //console.log(validateProduct1(newProduct));
 
 function calculateLineTotal(quantity, rate) {
+  if (quantity <= 0) {
+    return "Quantity must be greater than 0";
+  }
+
+  if (rate <= 0) {
+    return "Rate must be greater than 0";
+  }
+
   return quantity * rate;
 }
 
-console.log(calculateLineTotal(5, 50));
+//console.log(calculateLineTotal(5, 50));
 
 function calculateOrderTotal(items) {
   return items.reduce((total, item) => {
@@ -85,4 +93,59 @@ const orderItems = [
   { productId: 2, quantity: 5, rate: 10 }
 ];
 
-console.log("Order total:", calculateOrderTotal(orderItems));
+//console.log("Order total:", calculateOrderTotal(orderItems));
+
+
+function validateProduct(product) {
+  const errors = [];
+
+  if (!product.sku) {
+    errors.push("SKU is required");
+  }
+
+  if (!product.name) {
+    errors.push("Name is required");
+  }
+
+  if (product.price <= 0) {
+    errors.push("Price must be greater than zero");
+  }
+
+  if (product.stockQty < 0) {
+    errors.push("Stock quantity cannot be negative");
+  }
+
+  return errors;
+}
+
+const badProduct = {
+  id: 5,
+  sku: "",
+  name: "",
+  price: -10,
+  stockQty: -5
+};
+
+//console.log(validateProduct(badProduct));
+
+
+function addProduct(products, product) {
+  const validationErrors = validateProduct(product);
+
+  if (validationErrors.length > 0) {
+    return validationErrors;
+  }
+
+  products.push(product);
+  return products;
+}
+
+const validProduct = {
+  id: 4,
+  sku: "P004",
+  name: "Pencil",
+  price: 5,
+  stockQty: 100
+};
+
+console.log(addProduct(products, validProduct));
