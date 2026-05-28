@@ -1,8 +1,11 @@
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
 
+
 // Middleware to read JSON request body
+app.use(cors());
 app.use(express.json());
 
 // In-memory product data
