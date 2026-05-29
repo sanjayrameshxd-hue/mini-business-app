@@ -2,71 +2,81 @@ import Card from "../components/ui/Card";
 import {
   Package,
   Users,
-  ShoppingCart,
+  ShoppingCart
 } from "lucide-react";
 
-const summary = [
+const stats = [
   {
     label: "Products",
     value: 3,
-    icon: Package,
+    subtitle: "Total products",
+    icon: <Package size={38} />
   },
   {
     label: "Customers",
     value: 0,
-    icon: Users,
+    subtitle: "Total customers",
+    icon: <Users size={38} />
   },
   {
     label: "Sales Orders",
     value: 0,
-    icon: ShoppingCart,
-  },
+    subtitle: "Total orders",
+    icon: <ShoppingCart size={38} />
+  }
 ];
 
 function DashboardPage() {
   return (
-    <div>
-      <div className="mb-6">
-        <h2
-        style={{
-          color: "#000000",
-          fontSize: "32px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-        }}
-      >
-        Dashboard
-      </h2>
+    <div className="relative">
+      {/* Decorative background circles */}
+      <div className="absolute left-[-200px] top-[-100px] h-[350px] w-[350px] rounded-full bg-green-100 opacity-40"></div>
 
-        <p className="text-slate-500">
-          Overview of your business performance
+      <div className="absolute bottom-[-150px] right-[-200px] h-[350px] w-[350px] rounded-full bg-green-100 opacity-40"></div>
+
+      {/* Heading */}
+      <div className="mb-16 text-center">
+        <h2 
+          style={{
+            color: "#000000",
+            fontSize: "32px",
+            fontWeight: "bold",
+            }}
+          >
+            Dashboard
+        </h2>
+
+        <div className="mx-auto mt-3 h-2 w-20 rounded-full bg-green-300"></div>
+
+        <p className="mt-6 text-2xl text-slate-500">
+          Overview of your business
+          performance
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {summary.map((item) => {
-          const Icon = item.icon;
-
-          return (
-            <Card key={item.label}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    {item.label}
-                  </p>
-
-                  <h3 className="mt-2 text-4xl font-bold text-slate-900">
-                    {item.value}
-                  </h3>
-                </div>
-
-                <div className="rounded-2xl bg-green-100 p-4">
-                  <Icon className="h-8 w-8 text-green-600" />
-                </div>
+      {/* Cards */}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        {stats.map((item) => (
+          <Card key={item.label}>
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-green-100 text-green-700">
+                {item.icon}
               </div>
-            </Card>
-          );
-        })}
+
+              <h3 className="text-3xl font-semibold text-slate-700">
+                {item.label}
+              </h3>
+
+              <p className="mt-4 text-6xl font-bold text-green-800">
+                {item.value}
+              </p>
+
+              <div className="mt-8 w-full rounded-xl bg-green-50 py-4 text-lg text-green-700">
+                {item.subtitle}
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
