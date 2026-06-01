@@ -28,6 +28,17 @@ This application manages a simplified business workflow:
 - Prisma ORM
 ### Database
 - PostgreSQL
+## Database Setup
+
+This project uses PostgreSQL.
+
+Database name:
+mini_business_app
+
+Run:
+
+SELECT version();
+
 ### Engineering Workflow
 - Git
 - GitHub
