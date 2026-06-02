@@ -28,6 +28,9 @@ This application manages a simplified business workflow:
 - Prisma ORM
 ### Database
 - PostgreSQL
+
+## Prisma Setup
+
 ## Database Setup
 
 This project uses PostgreSQL.
@@ -46,3 +49,4 @@ SELECT version();
 - Automated tests
 - GitHub Actions
 - Hostinger deployment
+
