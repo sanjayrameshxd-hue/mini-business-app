@@ -1,108 +1,124 @@
-import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
+import { useEffect, useState } from 'react';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import { getProducts } from '../api/productApi';
 
-const products = [
-  {
-    id: 1,
-    sku: "P001",
-    name: "Notebook",
-    price: 50,
-    stockQty: 100,
-  },
-  {
-    id: 2,
-    sku: "P002",
-    name: "Pen",
-    price: 10,
-    stockQty: 500,
-  },
-  {
-    id: 3,
-    sku: "P003",
-    name: "Marker",
-    price: 25,
-    stockQty: 40,
-  },
-];
+function formatPrice(price) {
+  return `Rs. ${Number(price).toFixed(2)}`;
+}
 
 function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  async function loadProducts() {
+    try {
+      setLoading(true);
+      setError('');
+
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      setError(err.message || 'Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
   return (
-    <div className="mt-10">
-      {/* Heading Section */}
-      <div className="mb-6">
-        <div style={{ textAlign: "center" }}>
-          <h2
-            style={{
-              color: "#000000",
-              fontSize: "32px",
-              fontWeight: "bold",
-              marginBottom: "10px",
-            }}
-          >
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
             Products
           </h2>
 
-          <p className="text-slate-500">
-            Manage your inventory and products
+          <p className="text-sm text-gray-500">
+            Product data loaded from the backend API.
           </p>
         </div>
 
-        {/* Button aligned right */}
-        <div className="mt-4 flex justify-end">
-          <Button>Add Product</Button>
-        </div>
+        <Button>Add Product</Button>
       </div>
 
-      {/* Table Card */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b text-slate-500">
-                <th className="pb-4 font-semibold">
-                  SKU
-                </th>
+        {loading ? (
+          <p className="text-sm text-gray-500">
+            Loading products...
+          </p>
+        ) : error ? (
+          <div
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          >
+            {error}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="rounded-md border border-dashed p-6 text-center">
+            <p className="text-sm font-medium text-gray-900">
+              No products found
+            </p>
 
-                <th className="pb-4 font-semibold">
-                  Name
-                </th>
+            <p className="mt-1 text-sm text-gray-500">
+              Create your first product from the backend API or
+              product form.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b bg-gray-50 text-gray-500">
+                  <th className="px-3 py-2 font-medium">
+                    SKU
+                  </th>
 
-                <th className="pb-4 font-semibold">
-                  Price
-                </th>
+                  <th className="px-3 py-2 font-medium">
+                    Name
+                  </th>
 
-                <th className="pb-4 font-semibold">
-                  Stock
-                </th>
-              </tr>
-            </thead>
+                  <th className="px-3 py-2 font-medium">
+                    Price
+                  </th>
 
-            <tbody>
-              {products.map((product) => (
-                <tr
-                  key={product.id}
-                  className="border-b transition hover:bg-slate-50"
-                >
-                  <td className="py-4 font-semibold text-slate-900">
-                    {product.sku}
-                  </td>
-
-                  <td className="py-4 text-slate-700">
-                    {product.name}
-                  </td>
-
-                  <td className="py-4 text-slate-700">
-                    ₹{product.price}
-                  </td>
-
-                  <td className="py-4 text-slate-700">
-                    {product.stockQty}
-                  </td>
+                  <th className="px-3 py-2 font-medium">
+                    Stock
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                {products.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="border-b last:border-0"
+                  >
+                    <td className="px-3 py-2 font-medium text-gray-900">
+                      {product.sku}
+                    </td>
+
+                    <td className="px-3 py-2 text-gray-700">
+                      {product.name}
+                    </td>
+
+                    <td className="px-3 py-2 text-gray-700">
+                      {formatPrice(product.price)}
+                    </td>
+
+                    <td className="px-3 py-2 text-gray-700">
+                      {product.stockQty}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
     </div>
   );

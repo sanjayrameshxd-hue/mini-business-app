@@ -1,59 +1,167 @@
-let products = [
-  { id: 1, sku: 'P001', name: 'Notebook', price: 50, stockQty: 100 },
-  { id: 2, sku: 'P002', name: 'Pen', price: 10, stockQty: 500 }
-];
+const prisma = require('../lib/prisma');
 
-function getAllProducts() {
-  return products;
-}
-
-function getProductById(id) {
-  return products.find(product => product.id === id);
-}
-
-function createProduct(data) {
-  // Validate required fields
-  if (!data.sku || !data.name) {
-    const error = new Error('SKU and name are required');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  // Validate price
-  if (Number(data.price) <= 0) {
-    const error = new Error('Price must be greater than zero');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  // Check duplicate SKU
-  const existingProduct = products.find(
-    product => product.sku === data.sku
-  );
-
-  if (existingProduct) {
-    const error = new Error('SKU already exists');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  // Create new product
-  const newProduct = {
-    id: products.length + 1,
-    sku: data.sku,
-    name: data.name,
-    price: Number(data.price),
-    stockQty: Number(data.stockQty || 0)
+function normalizeProductInput(data) {
+  return {
+    sku: data.sku?.trim(),
+    name: data.name?.trim(),
+    price: data.price,
+    stockQty: data.stockQty
   };
+}
 
-  // Add product to array
-  products.push(newProduct);
+function validateProductInput(data, { partial = false } = {}) {
+  const errors = [];
 
-  return newProduct;
+  if (!partial || data.sku !== undefined) {
+    if (!data.sku || !String(data.sku).trim()) {
+      errors.push('SKU is required');
+    }
+  }
+
+  if (!partial || data.name !== undefined) {
+    if (!data.name || !String(data.name).trim()) {
+      errors.push('Name is required');
+    }
+  }
+
+  if (!partial || data.price !== undefined) {
+    const price = Number(data.price);
+
+    if (Number.isNaN(price) || price <= 0) {
+      errors.push('Price must be greater than zero');
+    }
+  }
+
+  if (!partial || data.stockQty !== undefined) {
+    const stockQty = Number(data.stockQty);
+
+    if (Number.isNaN(stockQty) || stockQty < 0) {
+      errors.push('Stock quantity cannot be negative');
+    }
+  }
+
+  if (errors.length > 0) {
+    const error = new Error(errors.join(', '));
+    error.statusCode = 400;
+    throw error;
+  }
+}
+
+async function getAllProducts() {
+  return prisma.product.findMany({
+    where: {
+      isActive: true
+    },
+    orderBy: {
+      id: 'desc'
+    }
+  });
+}
+
+async function getProductById(id) {
+  return prisma.product.findFirst({
+    where: {
+      id,
+      isActive: true
+    }
+  });
+}
+
+async function createProduct(data) {
+  validateProductInput(data);
+
+  const normalized = normalizeProductInput(data);
+
+  try {
+    return await prisma.product.create({
+      data: {
+        sku: normalized.sku,
+        name: normalized.name,
+        price: normalized.price,
+        stockQty: Number(normalized.stockQty || 0)
+      }
+    });
+  } catch (error) {
+    if (error.code === 'P2002') {
+      const duplicateError = new Error('SKU already exists');
+      duplicateError.statusCode = 400;
+      throw duplicateError;
+    }
+
+    throw error;
+  }
+}
+
+async function updateProduct(id, data) {
+  validateProductInput(data, { partial: true });
+
+  const existingProduct = await getProductById(id);
+
+  if (!existingProduct) {
+    const error = new Error('Product not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const updateData = {};
+
+  if (data.sku !== undefined) {
+    updateData.sku = String(data.sku).trim();
+  }
+
+  if (data.name !== undefined) {
+    updateData.name = String(data.name).trim();
+  }
+
+  if (data.price !== undefined) {
+    updateData.price = data.price;
+  }
+
+  if (data.stockQty !== undefined) {
+    updateData.stockQty = Number(data.stockQty);
+  }
+
+  try {
+    return await prisma.product.update({
+      where: {
+        id
+      },
+      data: updateData
+    });
+  } catch (error) {
+    if (error.code === 'P2002') {
+      const duplicateError = new Error('SKU already exists');
+      duplicateError.statusCode = 400;
+      throw duplicateError;
+    }
+
+    throw error;
+  }
+}
+
+async function deleteProduct(id) {
+  const existingProduct = await getProductById(id);
+
+  if (!existingProduct) {
+    const error = new Error('Product not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return prisma.product.update({
+    where: {
+      id
+    },
+    data: {
+      isActive: false
+    }
+  });
 }
 
 module.exports = {
   getAllProducts,
   getProductById,
-  createProduct
+  createProduct,
+  updateProduct,
+  deleteProduct
 };

@@ -1,29 +1,82 @@
 const productService = require('../services/product.service');
 
-function listProducts(req, res) {
-  const products = productService.getAllProducts();
-  res.json(products);
-}
-
-function getProduct(req, res) {
-  const id = Number(req.params.id);
-
-  const product = productService.getProductById(id);
-
-  if (!product) {
-    return res.status(404).json({
-      message: 'Product not found'
-    });
-  }
-
-  res.json(product);
-}
-
-function createProduct(req, res, next) {
+async function listProducts(req, res, next) {
   try {
-    const product = productService.createProduct(req.body);
+    const products = await productService.getAllProducts();
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getProduct(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        message: 'Invalid product ID'
+      });
+    }
+
+    const product = await productService.getProductById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: 'Product not found'
+      });
+    }
+
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createProduct(req, res, next) {
+  try {
+    const product = await productService.createProduct(req.body);
 
     res.status(201).json(product);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateProduct(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        message: 'Invalid product ID'
+      });
+    }
+
+    const product = await productService.updateProduct(
+      id,
+      req.body
+    );
+
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteProduct(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        message: 'Invalid product ID'
+      });
+    }
+
+    await productService.deleteProduct(id);
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
@@ -32,5 +85,7 @@ function createProduct(req, res, next) {
 module.exports = {
   listProducts,
   getProduct,
-  createProduct
+  createProduct,
+  updateProduct,
+  deleteProduct
 };
