@@ -1,0 +1,64 @@
+### Test 1: Create Customer
+POST http://localhost:3000/api/customers
+Content-Type: application/json
+
+{
+  "code": "C001",
+  "name": "ABC Stores",
+  "phone": "9876543210",
+  "email": "accounts@abcstores.com"
+}
+
+###
+
+### Test 2: List Customers
+GET http://localhost:3000/api/customers
+
+###
+
+### Test 3: Get Customer by ID
+GET http://localhost:3000/api/customers/1
+
+###
+
+### Test 4: Duplicate Customer Code
+POST http://localhost:3000/api/customers
+Content-Type: application/json
+
+{
+  "code": "C001",
+  "name": "Duplicate Customer"
+}
+
+###
+
+### Test 5: Missing Customer Name
+POST http://localhost:3000/api/customers
+Content-Type: application/json
+
+{
+  "code": "C002"
+}
+
+###
+
+### Test 6: Update Customer
+PATCH http://localhost:3000/api/customers/1
+Content-Type: application/json
+
+{
+  "code": "C001",
+  "name": "ABC Stores Updated",
+  "phone": "9876543210",
+  "email": "admin@abcstores.com"
+}
+
+###
+
+### Test 7: Delete / Deactivate Customer
+DELETE http://localhost:3000/api/customers/1
+
+###
+
+### Test 8: Verify Customer Removed from Active List
+GET http://localhost:3000/api/customers
