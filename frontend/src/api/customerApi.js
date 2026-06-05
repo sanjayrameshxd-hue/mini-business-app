@@ -1,0 +1,106 @@
+const API_BASE_URL =
+  import.meta.env
+    .VITE_API_BASE_URL;
+
+async function handleResponse(
+  response
+) {
+  const data =
+    await response
+      .json()
+      .catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+        "Request failed"
+    );
+  }
+
+  return data;
+}
+
+export async function getCustomers() {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/customers`
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
+export async function createCustomer(
+  customer
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/customers`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify(
+          customer
+        )
+      }
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
+export async function updateCustomer(
+  id,
+  customer
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/customers/${id}`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify(
+          customer
+        )
+      }
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
+export async function deleteCustomer(
+  id
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/customers/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+  if (
+    response.status ===
+    204
+  ) {
+    return true;
+  }
+
+  return handleResponse(
+    response
+  );
+}

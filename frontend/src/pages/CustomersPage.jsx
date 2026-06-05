@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Card from "../components/ui/Card";
+
 import {
-  getProducts,
-  deleteProduct as deleteProductApi
-} from "../api/productApi";
+  getCustomers,
+  deleteCustomer as deleteCustomerApi
+} from "../api/customerApi";
 
-function formatPrice(price) {
-  return `Rs. ${Number(price).toFixed(2)}`;
-}
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
+import EmptyState from "../components/ui/EmptyState";
+import ErrorMessage from "../components/ui/ErrorMessage";
+import LoadingMessage from "../components/ui/LoadingMessage";
 
-function ProductsPage() {
-  const [products, setProducts] =
+function CustomersPage() {
+  const [customers, setCustomers] =
     useState([]);
 
   const [loading, setLoading] =
@@ -21,12 +23,12 @@ function ProductsPage() {
     useState("");
 
   const [
-    favoriteProducts,
-    setFavoriteProducts
+    favoriteCustomers,
+    setFavoriteCustomers
   ] = useState(() => {
     const savedFavorites =
       localStorage.getItem(
-        "favoriteProducts"
+        "favoriteCustomers"
       );
 
     return savedFavorites
@@ -37,23 +39,23 @@ function ProductsPage() {
   });
 
   const [
-    selectedProduct,
-    setSelectedProduct
+    selectedCustomer,
+    setSelectedCustomer
   ] = useState(null);
 
-  async function loadProducts() {
+  async function loadCustomers() {
     try {
       setLoading(true);
       setError("");
 
       const data =
-        await getProducts();
+        await getCustomers();
 
-      setProducts(data);
+      setCustomers(data);
     } catch (err) {
       setError(
         err.message ||
-          "Failed to load products"
+          "Failed to load customers"
       );
     } finally {
       setLoading(false);
@@ -61,48 +63,48 @@ function ProductsPage() {
   }
 
   useEffect(() => {
-    loadProducts();
+    loadCustomers();
   }, []);
 
   useEffect(() => {
     localStorage.setItem(
-      "favoriteProducts",
+      "favoriteCustomers",
       JSON.stringify(
-        favoriteProducts
+        favoriteCustomers
       )
     );
-  }, [favoriteProducts]);
+  }, [favoriteCustomers]);
 
   function toggleFavorite(
-    productId
+    customerId
   ) {
-    setFavoriteProducts(
+    setFavoriteCustomers(
       (prev) =>
         prev.includes(
-          productId
+          customerId
         )
           ? prev.filter(
               (id) =>
                 id !==
-                productId
+                customerId
             )
           : [
               ...prev,
-              productId
+              customerId
             ]
     );
 
-    setSelectedProduct(
+    setSelectedCustomer(
       null
     );
   }
 
-  async function deleteProduct(
-    productId
+  async function deleteCustomer(
+    customerId
   ) {
     const confirmed =
       window.confirm(
-        "Are you sure you want to delete this product?"
+        "Are you sure you want to delete this customer?"
       );
 
     if (!confirmed) {
@@ -110,41 +112,53 @@ function ProductsPage() {
     }
 
     try {
-      await deleteProductApi(
-        productId
+      await deleteCustomerApi(
+        customerId
       );
 
-      setProducts(
+      setCustomers(
         (
-          prevProducts
+          prevCustomers
         ) =>
-          prevProducts.filter(
+          prevCustomers.filter(
             (
-              product
+              customer
             ) =>
-              product.id !==
-              productId
+              customer.id !==
+              customerId
           )
       );
 
-      setFavoriteProducts(
+      setFavoriteCustomers(
         (prev) =>
           prev.filter(
             (id) =>
               id !==
-              productId
+              customerId
           )
       );
 
-      setSelectedProduct(
+      setSelectedCustomer(
         null
       );
     } catch (error) {
       alert(
         error.message ||
-          "Failed to delete product"
+          "Failed to delete customer"
       );
     }
+  }
+
+  if (loading) {
+    return (
+      <LoadingMessage message="Loading customers..." />
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage message={error} />
+    );
   }
 
   return (
@@ -161,62 +175,39 @@ function ProductsPage() {
                 "bold"
             }}
           >
-            Products
+            Customers
           </h2>
 
           <p className="text-sm text-gray-500">
-            Product data loaded
-            from the backend
-            API.
+            Manage customer
+            master data used
+            in sales orders.
           </p>
         </div>
 
         <Link
-          to="/products/new"
-         className="rounded-2xl bg-gradient-to-r from-green-600 to-emerald-500 px-5 py-3 text-sm font-semibold 
-                    text-white shadow-md transition duration-300 hover:scale-105 hover:shadow-lg 
-                    hover:from-amber-600 hover:to-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+          to="/customers/new"
         >
-          Add Product
+          <Button>
+            Add Customer
+          </Button>
         </Link>
       </div>
 
-      <Card>
-        {loading ? (
-          <p className="text-sm text-gray-500">
-            Loading
-            products...
-          </p>
-        ) : error ? (
-          <div
-            role="alert"
-            className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
-          >
-            {error}
-          </div>
-        ) : products.length ===
-          0 ? (
-          <div className="rounded-md border border-dashed p-6 text-center">
-            <p className="text-sm font-medium text-gray-900">
-              No products
-              found
-            </p>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Create your
-              first product
-              from the backend
-              API or product
-              form.
-            </p>
-          </div>
-        ) : (
+      {customers.length ===
+      0 ? (
+        <EmptyState
+          title="No customers found"
+          description="Create your first customer to start using sales orders."
+        />
+      ) : (
+        <Card>
           <div className="h-[350px] overflow-y-auto rounded-3xl border border-gray-300">
             <table className="w-full border-collapse text-left text-sm">
               <thead className="sticky top-0 z-10">
                 <tr className="border-b bg-green-100 text-gray-900">
                   <th className="px-4 py-4 text-lg font-bold">
-                    SKU
+                    Code
                   </th>
 
                   <th className="px-4 py-4 text-lg font-bold">
@@ -224,62 +215,60 @@ function ProductsPage() {
                   </th>
 
                   <th className="px-4 py-4 text-lg font-bold">
-                    Price
+                    Phone
                   </th>
 
                   <th className="px-4 py-4 text-lg font-bold">
-                    Stock
+                    Email
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-                {products.map(
+                {customers.map(
                   (
-                    product
+                    customer
                   ) => (
                     <tr
                       key={
-                        product.id
+                        customer.id
                       }
                       onClick={() =>
-                        setSelectedProduct(
-                          selectedProduct ===
-                            product.id
+                        setSelectedCustomer(
+                          selectedCustomer ===
+                            customer.id
                             ? null
-                            : product.id
+                            : customer.id
                         )
                       }
                       className="relative cursor-pointer border-b hover:bg-gray-50 last:border-0"
                     >
                       <td className="px-4 py-4 font-medium text-gray-900">
                         {
-                          product.sku
+                          customer.code
                         }
                       </td>
 
                       <td className="px-4 py-4 text-gray-700">
                         {
-                          product.name
+                          customer.name
                         }
                       </td>
 
                       <td className="px-4 py-4 text-gray-700">
-                        {formatPrice(
-                          product.price
-                        )}
+                        {customer.phone ||
+                          "-"}
                       </td>
 
                       <td className="px-4 py-4 text-gray-700">
                         <div className="flex items-center justify-between">
                           <span>
-                            {
-                              product.stockQty
-                            }
+                            {customer.email ||
+                              "-"}
                           </span>
 
-                          {favoriteProducts.includes(
-                            product.id
+                          {favoriteCustomers.includes(
+                            customer.id
                           ) && (
                             <span className="text-lg">
                               ❤️
@@ -288,8 +277,8 @@ function ProductsPage() {
                         </div>
                       </td>
 
-                      {selectedProduct ===
-                        product.id && (
+                      {selectedCustomer ===
+                        customer.id && (
                         <td className="absolute right-4 top-12 z-50">
                           <div className="overflow-hidden rounded-lg border bg-white shadow-lg">
                             <button
@@ -299,7 +288,7 @@ function ProductsPage() {
                                 e.stopPropagation();
 
                                 toggleFavorite(
-                                  product.id
+                                  customer.id
                                 );
                               }}
                               className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
@@ -309,7 +298,7 @@ function ProductsPage() {
                             </button>
 
                             <Link
-                              to={`/products/${product.id}/edit`}
+                              to={`/customers/${customer.id}/edit`}
                               onClick={(
                                 e
                               ) =>
@@ -318,7 +307,7 @@ function ProductsPage() {
                               className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-blue-50"
                             >
                               ✏️ Update
-                              Product
+                              Customer
                             </Link>
 
                             <button
@@ -327,14 +316,14 @@ function ProductsPage() {
                               ) => {
                                 e.stopPropagation();
 
-                                deleteProduct(
-                                  product.id
+                                deleteCustomer(
+                                  customer.id
                                 );
                               }}
                               className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                             >
                               🗑 Delete
-                              Product
+                              Customer
                             </button>
                           </div>
                         </td>
@@ -345,10 +334,10 @@ function ProductsPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
     </div>
   );
 }
 
-export default ProductsPage;
+export default CustomersPage;

@@ -1,7 +1,9 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL;
 
-async function handleResponse(response) {
+async function handleResponse(
+  response
+) {
   const data =
     await response.json().catch(
       () => null
@@ -23,7 +25,9 @@ export async function getProducts() {
       `${API_BASE_URL}/api/products`
     );
 
-  return handleResponse(response);
+  return handleResponse(
+    response
+  );
 }
 
 export async function createProduct(
@@ -46,5 +50,49 @@ export async function createProduct(
       }
     );
 
-  return handleResponse(response);
+  return handleResponse(
+    response
+  );
+}
+
+export async function updateProduct(
+  id,
+  productData
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/products/${id}`,
+      {
+        method: 'PUT',
+
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify(
+          productData
+        )
+      }
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
+export async function deleteProduct(
+  id
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/products/${id}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
+  return handleResponse(
+    response
+  );
 }

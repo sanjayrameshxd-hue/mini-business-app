@@ -56,6 +56,10 @@ function AppLayout({ children }) {
               <Package size={20} />
               Products
             </NavLink>
+
+            <NavLink to="/customers" className={linkClass}>
+              Customers
+            </NavLink>
           </nav>
         </div>
       </header>

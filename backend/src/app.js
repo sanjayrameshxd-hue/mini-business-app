@@ -3,6 +3,8 @@ const cors = require("cors");
 
 const productRoutes = require("./routes/product.routes");
 const customerRoutes = require("./routes/customer.routes");
+const notFound = require('./middleware/notFound');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -27,5 +29,7 @@ app.use((err, req, res, next) => {
     message: err.message || "Internal server error",
   });
 });
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;
