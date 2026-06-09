@@ -1,0 +1,18 @@
+### Health Check
+GET http://localhost:3000/health
+
+
+### Get All Sales Orders
+GET http://localhost:3000/api/sales-orders
+
+
+### Get Sales Order By ID (Existing)
+GET http://localhost:3000/api/sales-orders/1
+
+
+### Get Missing Sales Order
+GET http://localhost:3000/api/sales-orders/999
+
+
+### Get Invalid Sales Order ID
+GET http://localhost:3000/api/sales-orders/abc

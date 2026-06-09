@@ -8,23 +8,51 @@ datasource db {
 }
 
 model Product {
-  id         Int      @id @default(autoincrement())
-  sku        String   @unique
-  name       String
-  price      Decimal
-  stockQty   Int      @default(0)
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              Int              @id @default(autoincrement())
+  sku             String           @unique
+  name            String
+  price           Decimal
+  stockQty        Int              @default(0)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  salesOrderItems SalesOrderItem[]
 }
 
 model Customer {
-  id Int @id @default(autoincrement())
-  code String @unique
-  name String
-  phone String?
-  email String?
-  isActive Boolean @default(true)
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  phone       String?
+  email       String?
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  salesOrders SalesOrder[]
+}
+
+model SalesOrder {
+  id          Int     @id @default(autoincrement())
+  orderNo     String  @unique
+  customerId  Int
+  status      String  @default("DRAFT")
+  totalAmount Decimal @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  items SalesOrderItem[]
+}
+
+model SalesOrderItem {
+  id           Int        @id @default(autoincrement())
+  salesOrderId Int
+  productId    Int
+  quantity     Int
+  rate         Decimal
+  lineTotal    Decimal
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
+  product      Product    @relation(fields: [productId], references: [id])
 }

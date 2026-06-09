@@ -60,6 +60,10 @@ function AppLayout({ children }) {
             <NavLink to="/customers" className={linkClass}>
               Customers
             </NavLink>
+
+            <NavLink to="/sales-orders" className={linkClass}>
+               Sales Orders
+            </NavLink>
           </nav>
         </div>
       </header>
