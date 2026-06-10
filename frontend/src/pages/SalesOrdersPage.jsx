@@ -148,10 +148,15 @@ function SalesOrdersPage() {
                       }
                       className="border-b last:border-0"
                     >
-                      <td className="px-3 py-2 font-medium text-gray-900">
-                        {
-                          order.orderNo
-                        }
+                      <td className="px-3 py-2">
+                        <Link
+                          to={`/sales-orders/${order.id}`}
+                          className="font-medium text-gray-900 hover:underline"
+                        >
+                          {
+                            order.orderNo
+                          }
+                        </Link>
                       </td>
 
                       <td className="px-3 py-2 text-gray-700">

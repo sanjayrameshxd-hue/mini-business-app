@@ -28,5 +28,11 @@ router.post(
   salesOrderController.createSalesOrder
 );
 
+// Confirm sales order
+router.post(
+  "/:id/confirm",
+  salesOrderController.confirmSalesOrder
+);
+
 module.exports =
   router;

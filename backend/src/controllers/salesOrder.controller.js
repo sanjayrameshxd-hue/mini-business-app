@@ -35,7 +35,7 @@ async function listSalesOrders(
 
           itemCount:
             order.items
-              .length
+              .length,
         })
       );
 
@@ -120,8 +120,28 @@ async function createSalesOrder(
   }
 }
 
+async function confirmSalesOrder(
+  req,
+  res,
+  next
+) {
+  try {
+    const order =
+      await salesOrderService.confirmSalesOrder(
+        req.params.id
+      );
+
+    res.json(
+      order
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   listSalesOrders,
   getSalesOrder,
-  createSalesOrder
+  createSalesOrder,
+  confirmSalesOrder,
 };

@@ -6,7 +6,7 @@ async function getSalesOrders() {
   return prisma.salesOrder.findMany(
     {
       orderBy: {
-        id: "desc"
+        id: "desc",
       },
 
       include: {
@@ -14,16 +14,16 @@ async function getSalesOrders() {
           select: {
             id: true,
             code: true,
-            name: true
-          }
+            name: true,
+          },
         },
 
         items: {
           select: {
-            id: true
-          }
-        }
-      }
+            id: true,
+          },
+        },
+      },
     }
   );
 }
@@ -34,7 +34,7 @@ async function getSalesOrderById(
   return prisma.salesOrder.findUnique(
     {
       where: {
-        id
+        id,
       },
 
       include: {
@@ -44,8 +44,8 @@ async function getSalesOrderById(
             code: true,
             name: true,
             phone: true,
-            email: true
-          }
+            email: true,
+          },
         },
 
         items: {
@@ -54,16 +54,17 @@ async function getSalesOrderById(
               select: {
                 id: true,
                 sku: true,
-                name: true
-              }
-            }
+                name: true,
+                stockQty: true,
+              },
+            },
           },
 
           orderBy: {
-            id: "asc"
-          }
-        }
-      }
+            id: "asc",
+          },
+        },
+      },
     }
   );
 }
@@ -124,8 +125,7 @@ function validateOrderInput(
         const error =
           new Error(
             `Product is required for item ${
-              index +
-              1
+              index + 1
             }`
           );
 
@@ -143,8 +143,7 @@ function validateOrderInput(
         const error =
           new Error(
             `Quantity must be greater than zero for item ${
-              index +
-              1
+              index + 1
             }`
           );
 
@@ -162,8 +161,7 @@ function validateOrderInput(
         const error =
           new Error(
             `Rate must be greater than zero for item ${
-              index +
-              1
+              index + 1
             }`
           );
 
@@ -182,10 +180,7 @@ async function generateOrderNo() {
 
   return `SO-${String(
     count + 1
-  ).padStart(
-    4,
-    "0"
-  )}`;
+  ).padStart(4, "0")}`;
 }
 
 async function createSalesOrder(
@@ -201,8 +196,8 @@ async function createSalesOrder(
         where: {
           id: Number(
             data.customerId
-          )
-        }
+          ),
+        },
       }
     );
 
@@ -231,11 +226,11 @@ async function createSalesOrder(
       {
         where: {
           id: {
-            in: productIds
+            in: productIds,
           },
 
-          isActive: true
-        }
+          isActive: true,
+        },
       }
     );
 
@@ -281,7 +276,7 @@ async function createSalesOrder(
             calculateLineTotal(
               quantity,
               rate
-            )
+            ),
         };
       }
     );
@@ -319,8 +314,8 @@ async function createSalesOrder(
 
         items: {
           create:
-            orderItems
-        }
+            orderItems,
+        },
       },
 
       include: {
@@ -328,10 +323,200 @@ async function createSalesOrder(
 
         items: {
           include: {
-            product: true
+            product: true,
+          },
+        },
+      },
+    }
+  );
+}
+
+async function confirmSalesOrder(
+  id
+) {
+  const orderId =
+    Number(id);
+
+  return prisma.$transaction(
+    async (tx) => {
+      const order =
+        await tx.salesOrder.findUnique(
+          {
+            where: {
+              id: orderId,
+            },
+
+            include: {
+              items: {
+                include: {
+                  product:
+                    true,
+                },
+              },
+
+              customer:
+                true,
+            },
           }
+        );
+
+      if (!order) {
+        const error =
+          new Error(
+            "Sales order not found"
+          );
+
+        error.statusCode =
+          404;
+
+        throw error;
+      }
+
+      if (
+        order.status !==
+        "DRAFT"
+      ) {
+        const error =
+          new Error(
+            "Only draft orders can be confirmed"
+          );
+
+        error.statusCode =
+          400;
+
+        throw error;
+      }
+
+      if (
+        !order.items ||
+        order.items
+          .length === 0
+      ) {
+        const error =
+          new Error(
+            "Cannot confirm an order without items"
+          );
+
+        error.statusCode =
+          400;
+
+        throw error;
+      }
+
+      for (const item of order.items) {
+        if (
+          item.quantity <=
+          0
+        ) {
+          const error =
+            new Error(
+              "Order item quantity must be greater than zero"
+            );
+
+          error.statusCode =
+            400;
+
+          throw error;
+        }
+
+        if (
+          !item.product
+        ) {
+          const error =
+            new Error(
+              "Order item product not found"
+            );
+
+          error.statusCode =
+            400;
+
+          throw error;
+        }
+
+        if (
+          item.product
+            .stockQty <
+          item.quantity
+        ) {
+          const error =
+            new Error(
+              `Insufficient stock for product ${item.product.name}`
+            );
+
+          error.statusCode =
+            400;
+
+          throw error;
         }
       }
+
+      for (const item of order.items) {
+        await tx.product.update(
+          {
+            where: {
+              id: item.productId,
+            },
+
+            data: {
+              stockQty:
+                {
+                  decrement:
+                    item.quantity,
+                },
+            },
+          }
+        );
+
+        await tx.stockMovement.create(
+          {
+            data: {
+              productId:
+                item.productId,
+
+              movementType:
+                "OUT",
+
+              quantity:
+                item.quantity,
+
+              referenceType:
+                "SALES_ORDER",
+
+              referenceId:
+                order.id,
+            },
+          }
+        );
+      }
+
+      const confirmedOrder =
+        await tx.salesOrder.update(
+          {
+            where: {
+              id: order.id,
+            },
+
+            data: {
+              status:
+                "CONFIRMED",
+            },
+
+            include: {
+              customer:
+                true,
+
+              items: {
+                include:
+                  {
+                    product:
+                      true,
+                  },
+              },
+            },
+          }
+        );
+
+      return confirmedOrder;
     }
   );
 }
@@ -340,5 +525,6 @@ module.exports = {
   getSalesOrders,
   getSalesOrderById,
   createSalesOrder,
-  calculateLineTotal
+  confirmSalesOrder,
+  calculateLineTotal,
 };

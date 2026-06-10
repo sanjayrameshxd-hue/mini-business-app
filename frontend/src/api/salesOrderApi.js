@@ -44,6 +44,20 @@ export async function getSalesOrderById(
   );
 }
 
+// Alias for single order fetch
+export async function getSalesOrder(
+  id
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/sales-orders/${id}`
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
 export async function createSalesOrder(
   data
 ) {
@@ -61,6 +75,22 @@ export async function createSalesOrder(
         body: JSON.stringify(
           data
         ),
+      }
+    );
+
+  return handleResponse(
+    response
+  );
+}
+
+export async function confirmSalesOrder(
+  id
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/sales-orders/${id}/confirm`,
+      {
+        method: "POST",
       }
     );
 

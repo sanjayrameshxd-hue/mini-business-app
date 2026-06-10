@@ -1,22 +1,27 @@
 ### Health Check
 GET http://localhost:3000/health
 
+###
 
 ### Get All Sales Orders
 GET http://localhost:3000/api/sales-orders
 
+###
 
 ### Get Sales Order By ID (Existing)
 GET http://localhost:3000/api/sales-orders/1
 
+###
 
 ### Get Missing Sales Order
 GET http://localhost:3000/api/sales-orders/999
 
+###
 
 ### Get Invalid Sales Order ID
 GET http://localhost:3000/api/sales-orders/abc
 
+###
 
 ### Test 1: Create Valid Sales Order
 POST http://localhost:3000/api/sales-orders
@@ -33,6 +38,7 @@ Content-Type: application/json
   ]
 }
 
+###
 
 ### Test 2: Missing Customer
 POST http://localhost:3000/api/sales-orders
@@ -48,6 +54,7 @@ Content-Type: application/json
   ]
 }
 
+###
 
 ### Test 3: Empty Items
 POST http://localhost:3000/api/sales-orders
@@ -58,6 +65,7 @@ Content-Type: application/json
   "items": []
 }
 
+###
 
 ### Test 4: Invalid Quantity
 POST http://localhost:3000/api/sales-orders
@@ -74,6 +82,7 @@ Content-Type: application/json
   ]
 }
 
+###
 
 ### Test 5: Invalid Rate
 POST http://localhost:3000/api/sales-orders
@@ -90,6 +99,7 @@ Content-Type: application/json
   ]
 }
 
+###
 
 ### Test 6: Invalid Product
 POST http://localhost:3000/api/sales-orders
@@ -105,3 +115,40 @@ Content-Type: application/json
     }
   ]
 }
+
+###
+
+### Test 7: Confirm Valid Draft Order
+POST http://localhost:3000/api/sales-orders/1/confirm
+
+###
+
+### Test 8: Confirm Same Order Again
+POST http://localhost:3000/api/sales-orders/1/confirm
+
+###
+
+### Test 9: Create Order With Insufficient Stock
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 99999,
+      "rate": 50
+    }
+  ]
+}
+
+###
+
+### Test 10: Confirm Order With Insufficient Stock
+POST http://localhost:3000/api/sales-orders/2/confirm
+
+###
+
+### Test 11: Confirm Invalid Order ID
+POST http://localhost:3000/api/sales-orders/999/confirm

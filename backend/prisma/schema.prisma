@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Product {
-  id              Int              @id @default(autoincrement())
-  sku             String           @unique
-  name            String
-  price           Decimal
-  stockQty        Int              @default(0)
-  isActive        Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id Int @id @default(autoincrement())
+  sku String @unique
+  name String
+  price Decimal
+  stockQty Int @default(0)
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   salesOrderItems SalesOrderItem[]
+  stockMovements StockMovement[]
 }
 
 model Customer {
@@ -55,4 +56,15 @@ model SalesOrderItem {
   lineTotal    Decimal
   salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
   product      Product    @relation(fields: [productId], references: [id])
+}
+
+model StockMovement {
+  id Int @id @default(autoincrement())
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  movementType String
+  quantity Int
+  referenceType String?
+  referenceId Int?
+  createdAt DateTime @default(now())
 }
