@@ -42,12 +42,12 @@ export async function createCustomer(
 
         headers: {
           "Content-Type":
-            "application/json"
+            "application/json",
         },
 
         body: JSON.stringify(
           customer
-        )
+        ),
       }
     );
 
@@ -64,16 +64,16 @@ export async function updateCustomer(
     await fetch(
       `${API_BASE_URL}/api/customers/${id}`,
       {
-        method: "PUT",
+        method: "PATCH",
 
         headers: {
           "Content-Type":
-            "application/json"
+            "application/json",
         },
 
         body: JSON.stringify(
           customer
-        )
+        ),
       }
     );
 
@@ -89,7 +89,7 @@ export async function deleteCustomer(
     await fetch(
       `${API_BASE_URL}/api/customers/${id}`,
       {
-        method: "DELETE"
+        method: "DELETE",
       }
     );
 

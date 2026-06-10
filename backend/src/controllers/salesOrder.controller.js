@@ -1,6 +1,7 @@
-const salesOrderService = require(
-  "../services/salesOrder.service"
-);
+const salesOrderService =
+  require(
+    "../services/salesOrder.service"
+  );
 
 async function listSalesOrders(
   req,
@@ -11,23 +12,36 @@ async function listSalesOrders(
     const orders =
       await salesOrderService.getSalesOrders();
 
-    const response = orders.map(
-      (order) => ({
-        id: order.id,
-        orderNo: order.orderNo,
-        customer:
-          order.customer,
-        status: order.status,
-        totalAmount:
-          order.totalAmount,
-        createdAt:
-          order.createdAt,
-        itemCount:
-          order.items.length,
-      })
-    );
+    const response =
+      orders.map(
+        (order) => ({
+          id:
+            order.id,
 
-    res.json(response);
+          orderNo:
+            order.orderNo,
+
+          customer:
+            order.customer,
+
+          status:
+            order.status,
+
+          totalAmount:
+            order.totalAmount,
+
+          createdAt:
+            order.createdAt,
+
+          itemCount:
+            order.items
+              .length
+        })
+      );
+
+    res.json(
+      response
+    );
   } catch (error) {
     next(error);
   }
@@ -39,12 +53,15 @@ async function getSalesOrder(
   next
 ) {
   try {
-    const id = Number(
-      req.params.id
-    );
+    const id =
+      Number(
+        req.params.id
+      );
 
     if (
-      !Number.isInteger(id)
+      !Number.isInteger(
+        id
+      )
     ) {
       const error =
         new Error(
@@ -74,7 +91,30 @@ async function getSalesOrder(
       throw error;
     }
 
-    res.json(order);
+    res.json(
+      order
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createSalesOrder(
+  req,
+  res,
+  next
+) {
+  try {
+    const salesOrder =
+      await salesOrderService.createSalesOrder(
+        req.body
+      );
+
+    res
+      .status(201)
+      .json(
+        salesOrder
+      );
   } catch (error) {
     next(error);
   }
@@ -83,4 +123,5 @@ async function getSalesOrder(
 module.exports = {
   listSalesOrders,
   getSalesOrder,
+  createSalesOrder
 };

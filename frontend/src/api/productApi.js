@@ -1,18 +1,19 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
+  import.meta.env
+    .VITE_API_BASE_URL;
 
 async function handleResponse(
   response
 ) {
   const data =
-    await response.json().catch(
-      () => null
-    );
+    await response
+      .json()
+      .catch(() => null);
 
   if (!response.ok) {
     throw new Error(
       data?.message ||
-      'Request failed'
+        "Request failed"
     );
   }
 
@@ -37,16 +38,16 @@ export async function createProduct(
     await fetch(
       `${API_BASE_URL}/api/products`,
       {
-        method: 'POST',
+        method: "POST",
 
         headers: {
-          'Content-Type':
-            'application/json'
+          "Content-Type":
+            "application/json",
         },
 
         body: JSON.stringify(
           productData
-        )
+        ),
       }
     );
 
@@ -63,16 +64,16 @@ export async function updateProduct(
     await fetch(
       `${API_BASE_URL}/api/products/${id}`,
       {
-        method: 'PUT',
+        method: "PATCH",
 
         headers: {
-          'Content-Type':
-            'application/json'
+          "Content-Type":
+            "application/json",
         },
 
         body: JSON.stringify(
           productData
-        )
+        ),
       }
     );
 
@@ -88,9 +89,16 @@ export async function deleteProduct(
     await fetch(
       `${API_BASE_URL}/api/products/${id}`,
       {
-        method: 'DELETE'
+        method: "DELETE",
       }
     );
+
+  if (
+    response.status ===
+    204
+  ) {
+    return true;
+  }
 
   return handleResponse(
     response

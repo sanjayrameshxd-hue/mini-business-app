@@ -43,3 +43,28 @@ export async function getSalesOrderById(
     response
   );
 }
+
+export async function createSalesOrder(
+  data
+) {
+  const response =
+    await fetch(
+      `${API_BASE_URL}/api/sales-orders`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify(
+          data
+        ),
+      }
+    );
+
+  return handleResponse(
+    response
+  );
+}

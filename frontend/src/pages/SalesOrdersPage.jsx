@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { getSalesOrders } from "../api/salesOrderApi";
 
 import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
 
 function formatCurrency(value) {
   return `Rs. ${Number(
@@ -69,15 +68,19 @@ function SalesOrdersPage() {
           </p>
         </div>
 
-        <Button disabled>
-          New Sales Order
-        </Button>
+        <Link
+          to="/sales-orders/new"
+          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700"
+        >
+          Create Sales Order
+        </Link>
       </div>
 
       <Card>
         {loading ? (
           <p className="text-sm text-gray-500">
-            Loading sales orders...
+            Loading sales
+            orders...
           </p>
         ) : error ? (
           <div
@@ -86,18 +89,19 @@ function SalesOrdersPage() {
           >
             {error}
           </div>
-        ) : orders.length === 0 ? (
+        ) : orders.length ===
+          0 ? (
           <div className="rounded-md border border-dashed p-6 text-center">
             <h3 className="text-sm font-medium text-gray-900">
-              No sales orders yet
+              No sales orders
+              yet
             </h3>
 
             <p className="mt-1 text-sm text-gray-500">
-              Sales order creation
-              will be added next. For
-              today, this page is
-              ready to display orders
-              when they exist.
+              Create your first
+              sales order to
+              start tracking
+              customer orders.
             </p>
           </div>
         ) : (
@@ -201,6 +205,6 @@ function SalesOrdersPage() {
       </Card>
     </div>
   );
-}   
+}
 
 export default SalesOrdersPage;

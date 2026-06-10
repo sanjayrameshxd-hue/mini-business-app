@@ -1,38 +1,50 @@
-const express = require("express");
-const cors = require("cors");
+const express =
+  require("express");
 
-const productRoutes = require(
-  "./routes/product.routes"
-);
+const cors =
+  require("cors");
 
-const customerRoutes = require(
-  "./routes/customer.routes"
-);
+const productRoutes =
+  require(
+    "./routes/product.routes"
+  );
 
-const salesOrderRoutes = require(
-  "./routes/salesOrder.routes"
-);
+const customerRoutes =
+  require(
+    "./routes/customer.routes"
+  );
 
-const notFound = require(
-  "./middleware/notFound"
-);
+const salesOrderRoutes =
+  require(
+    "./routes/salesOrder.routes"
+  );
 
-const errorHandler = require(
-  "./middleware/errorHandler"
-);
+const notFound =
+  require(
+    "./middleware/notFound"
+  );
 
-const app = express();
+const errorHandler =
+  require(
+    "./middleware/errorHandler"
+  );
+
+const app =
+  express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Health check route
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-  });
-});
+app.get(
+  "/health",
+  (req, res) => {
+    res.json({
+      status: "ok"
+    });
+  }
+);
 
 // API routes
 app.use(
@@ -51,9 +63,14 @@ app.use(
 );
 
 // Not found middleware
-app.use(notFound);
+app.use(
+  notFound
+);
 
 // Global error handler
-app.use(errorHandler);
+app.use(
+  errorHandler
+);
 
-module.exports = app;
+module.exports =
+  app;

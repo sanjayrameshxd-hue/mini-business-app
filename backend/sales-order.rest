@@ -16,3 +16,92 @@ GET http://localhost:3000/api/sales-orders/999
 
 ### Get Invalid Sales Order ID
 GET http://localhost:3000/api/sales-orders/abc
+
+
+### Test 1: Create Valid Sales Order
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "rate": 50
+    }
+  ]
+}
+
+
+### Test 2: Missing Customer
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "rate": 50
+    }
+  ]
+}
+
+
+### Test 3: Empty Items
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": []
+}
+
+
+### Test 4: Invalid Quantity
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 0,
+      "rate": 50
+    }
+  ]
+}
+
+
+### Test 5: Invalid Rate
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "rate": 0
+    }
+  ]
+}
+
+
+### Test 6: Invalid Product
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "items": [
+    {
+      "productId": 999,
+      "quantity": 2,
+      "rate": 50
+    }
+  ]
+}
