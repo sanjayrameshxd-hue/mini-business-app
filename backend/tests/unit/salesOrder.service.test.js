@@ -1,11 +1,3 @@
-const {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  vi,
-} = require("vitest");
-
 const prisma = require(
   "../../src/lib/prisma"
 );
@@ -29,6 +21,9 @@ const mockPrisma = {
     findUnique:
       vi.fn(),
 
+    update:
+      vi.fn(),
+
     updateMany:
       vi.fn(),
   },
@@ -38,6 +33,9 @@ const mockPrisma = {
       vi.fn(),
 
     findUnique:
+      vi.fn(),
+
+    update:
       vi.fn(),
 
     updateMany:
@@ -171,7 +169,8 @@ describe(
 
             {
               id: 2,
-              name: "Pen",
+              name:
+                "Pen",
             },
           ]
         );
@@ -366,11 +365,11 @@ describe(
         );
 
         expect(
-          prisma.product.updateMany
+          prisma.product.update
         ).not.toHaveBeenCalled();
 
         expect(
-          prisma.salesOrder.updateMany
+          prisma.salesOrder.update
         ).not.toHaveBeenCalled();
 
         expect(
@@ -423,9 +422,10 @@ describe(
             confirmedOrder
           );
 
-        prisma.product.updateMany.mockResolvedValue(
+        prisma.product.update.mockResolvedValue(
           {
-            count: 1,
+            id: 1,
+            stockQty: 8,
           }
         );
 
@@ -437,9 +437,9 @@ describe(
           }
         );
 
-        prisma.salesOrder.updateMany.mockResolvedValue(
+        prisma.salesOrder.update.mockResolvedValue(
           {
-            count: 1,
+            ...confirmedOrder,
           }
         );
 
@@ -449,7 +449,7 @@ describe(
           );
 
         expect(
-          prisma.product.updateMany
+          prisma.product.update
         ).toHaveBeenCalled();
 
         expect(
@@ -457,13 +457,13 @@ describe(
         ).toHaveBeenCalled();
 
         expect(
-          prisma.salesOrder.updateMany
+          prisma.salesOrder.update
         ).toHaveBeenCalled();
 
         expect(
           prisma.salesOrder.findUnique
         ).toHaveBeenCalledTimes(
-          2
+          1
         );
 
         expect(

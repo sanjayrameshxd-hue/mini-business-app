@@ -50,3 +50,10 @@ SELECT version();
 - GitHub Actions
 - Hostinger deployment
 
+## Week 3 Business Flow Test Scenarios
+### Backend API tests
+Run backend tests:
+```powershell
+cd backend
+npm test
+```

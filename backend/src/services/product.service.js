@@ -1,42 +1,37 @@
-const products = [
-  {
-    id: 1,
-    sku: 'P001',
-    name: 'Notebook',
-    price: 50,
-    stockQty: 100
-  },
-  {
-    id: 2,
-    sku: 'P002',
-    name: 'Pen',
-    price: 10,
-    stockQty: 200
-  }
-];
+const prisma = require(
+  "../lib/prisma"
+);
 
 async function getProducts() {
-  return products;
+  return prisma.product.findMany(
+    {
+      orderBy: {
+        id: "desc",
+      },
+    }
+  );
 }
 
 async function getProductById(
   id
 ) {
   const product =
-    products.find(
-      (p) => p.id === id
+    await prisma.product.findUnique(
+      {
+        where: { id },
+      }
     );
 
   if (!product) {
     const error =
       new Error(
-        'Product not found'
+        "Product not found"
       );
 
     error.statusCode =
       404;
 
-    throw error;
+      throw error;
   }
 
   return product;
@@ -45,40 +40,50 @@ async function getProductById(
 async function createProduct(
   productData
 ) {
-  const newProduct = {
-    id:
-      Math.max(
-        ...products.map(
-          (p) => p.id
-        ),
-        0
-      ) + 1,
+  return prisma.product.create(
+    {
+      data: {
+        sku:
+          productData.sku,
 
-    ...productData
-  };
+        name:
+          productData.name,
 
-  products.push(
-    newProduct
+        price:
+          Number(
+            productData.price
+          ),
+
+        stockQty:
+          Number(
+            productData.stockQty ||
+              0
+          ),
+
+        isActive:
+          true,
+      },
+    }
   );
-
-  return newProduct;
 }
 
 async function updateProduct(
   id,
   productData
 ) {
-  const productIndex =
-    products.findIndex(
-      (p) => p.id === id
+  const existingProduct =
+    await prisma.product.findUnique(
+      {
+        where: { id },
+      }
     );
 
   if (
-    productIndex === -1
+    !existingProduct
   ) {
     const error =
       new Error(
-        'Product not found'
+        "Product not found"
       );
 
     error.statusCode =
@@ -87,34 +92,53 @@ async function updateProduct(
     throw error;
   }
 
-  products[
-    productIndex
-  ] = {
-    ...products[
-      productIndex
-    ],
-    ...productData
-  };
+  return prisma.product.update(
+    {
+      where: { id },
 
-  return products[
-    productIndex
-  ];
+      data: {
+        sku:
+          productData.sku,
+        name:
+          productData.name,
+
+        price:
+          productData.price !==
+          undefined
+            ? Number(
+                productData.price
+              )
+            : undefined,
+
+        stockQty:
+          productData.stockQty !==
+          undefined
+            ? Number(
+                productData.stockQty
+              )
+            : undefined,
+
+        isActive:
+          productData.isActive,
+      },
+    }
+  );
 }
 
 async function deleteProduct(
   id
 ) {
-  const productIndex =
-    products.findIndex(
-      (p) => p.id === id
+  const product =
+    await prisma.product.findUnique(
+      {
+        where: { id },
+      }
     );
 
-  if (
-    productIndex === -1
-  ) {
+  if (!product) {
     const error =
       new Error(
-        'Product not found'
+        "Product not found"
       );
 
     error.statusCode =
@@ -123,9 +147,10 @@ async function deleteProduct(
     throw error;
   }
 
-  products.splice(
-    productIndex,
-    1
+  await prisma.product.delete(
+    {
+      where: { id },
+    }
   );
 }
 
@@ -134,5 +159,5 @@ module.exports = {
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
 };
