@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "../components/ui/Card";
+import LoadingMessage from "../components/ui/LoadingMessage";
+import EmptyState from "../components/ui/EmptyState";
 import {
   getProducts,
   deleteProduct as deleteProductApi
@@ -183,10 +185,9 @@ function ProductsPage() {
 
       <Card>
         {loading ? (
-          <p className="text-sm text-gray-500">
-            Loading
-            products...
-          </p>
+          <LoadingMessage
+            message="Loading products..."
+          />
         ) : error ? (
           <div
             role="alert"
@@ -196,20 +197,10 @@ function ProductsPage() {
           </div>
         ) : products.length ===
           0 ? (
-          <div className="rounded-md border border-dashed p-6 text-center">
-            <p className="text-sm font-medium text-gray-900">
-              No products
-              found
-            </p>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Create your
-              first product
-              from the backend
-              API or product
-              form.
-            </p>
-          </div>
+          <EmptyState
+              title="No products found"
+              description="Create your first product to start using the app."
+            />
         ) : (
           <div className="h-[350px] overflow-y-auto rounded-3xl border border-gray-300">
             <table className="w-full border-collapse text-left text-sm">

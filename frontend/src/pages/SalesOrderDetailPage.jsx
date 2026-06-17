@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import LoadingMessage from "../components/ui/LoadingMessage";
 
 import {
   confirmSalesOrder,
@@ -59,13 +60,13 @@ function SalesOrderDetailPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <p className="text-sm text-gray-500">
-        Loading sales order...
-      </p>
-    );
+  return (
+    <LoadingMessage
+      message="Loading sales order..."
+    />
+   );
   }
-
+  
   if (error && !order) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">

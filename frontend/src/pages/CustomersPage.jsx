@@ -198,7 +198,7 @@ function CustomersPage() {
       0 ? (
         <EmptyState
           title="No customers found"
-          description="Create your first customer to start using sales orders."
+          description="Create a customer before creating sales orders."
         />
       ) : (
         <Card>

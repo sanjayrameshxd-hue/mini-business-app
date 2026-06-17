@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getSalesOrders } from "../api/salesOrderApi";
 
 import Card from "../components/ui/Card";
+import EmptyState from "../components/ui/EmptyState";
 
 function formatCurrency(value) {
   return `Rs. ${Number(
@@ -91,19 +92,10 @@ function SalesOrdersPage() {
           </div>
         ) : orders.length ===
           0 ? (
-          <div className="rounded-md border border-dashed p-6 text-center">
-            <h3 className="text-sm font-medium text-gray-900">
-              No sales orders
-              yet
-            </h3>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Create your first
-              sales order to
-              start tracking
-              customer orders.
-            </p>
-          </div>
+          <EmptyState
+            title="No sales orders found"
+            description="Create a sales order after products and customers are ready."
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
