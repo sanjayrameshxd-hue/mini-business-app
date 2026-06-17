@@ -2,6 +2,13 @@ const prisma = require(
   "../lib/prisma"
 );
 
+const {
+  calculateLineTotal,
+  calculateOrderTotal,
+} = require(
+  "../utils/salesOrderCalculations"
+);
+
 async function getSalesOrders() {
   return prisma.salesOrder.findMany(
     {
@@ -69,108 +76,93 @@ async function getSalesOrderById(
   );
 }
 
-function calculateLineTotal(
-  quantity,
-  rate
+function createAppError(
+  message,
+  statusCode = 400
 ) {
-  return (
-    Number(quantity) *
-    Number(rate)
+  const error = new Error(
+    message
   );
+
+  error.statusCode =
+    statusCode;
+
+  return error;
+}
+
+function validateOrderHasCustomer(
+  data
+) {
+  if (!data.customerId) {
+    throw createAppError(
+      "Customer is required"
+    );
+  }
+}
+
+function validateOrderHasItems(
+  data
+) {
+  if (
+    !Array.isArray(
+      data.items
+    ) ||
+    data.items.length === 0
+  ) {
+    throw createAppError(
+      "Order must have at least one item"
+    );
+  }
+}
+
+function validateOrderItem(
+  item,
+  index
+) {
+  const itemNumber =
+    index + 1;
+
+  if (
+    !item.productId
+  ) {
+    throw createAppError(
+      `Product is required for item ${itemNumber}`
+    );
+  }
+
+  if (
+    Number(
+      item.quantity
+    ) <= 0
+  ) {
+    throw createAppError(
+      `Quantity must be greater than zero for item ${itemNumber}`
+    );
+  }
+
+  if (
+    Number(item.rate) <=
+    0
+  ) {
+    throw createAppError(
+      `Rate must be greater than zero for item ${itemNumber}`
+    );
+  }
 }
 
 function validateOrderInput(
   data
 ) {
-  if (
-    !data.customerId
-  ) {
-    const error =
-      new Error(
-        "Customer is required"
-      );
+  validateOrderHasCustomer(
+    data
+  );
 
-    error.statusCode =
-      400;
-
-    throw error;
-  }
-
-  if (
-    !Array.isArray(
-      data.items
-    ) ||
-    data.items.length ===
-      0
-  ) {
-    const error =
-      new Error(
-        "Order must have at least one item"
-      );
-
-    error.statusCode =
-      400;
-
-    throw error;
-  }
+  validateOrderHasItems(
+    data
+  );
 
   data.items.forEach(
-    (
-      item,
-      index
-    ) => {
-      if (
-        !item.productId
-      ) {
-        const error =
-          new Error(
-            `Product is required for item ${
-              index + 1
-            }`
-          );
-
-        error.statusCode =
-          400;
-
-        throw error;
-      }
-
-      if (
-        Number(
-          item.quantity
-        ) <= 0
-      ) {
-        const error =
-          new Error(
-            `Quantity must be greater than zero for item ${
-              index + 1
-            }`
-          );
-
-        error.statusCode =
-          400;
-
-        throw error;
-      }
-
-      if (
-        Number(
-          item.rate
-        ) <= 0
-      ) {
-        const error =
-          new Error(
-            `Rate must be greater than zero for item ${
-              index + 1
-            }`
-          );
-
-        error.statusCode =
-          400;
-
-        throw error;
-      }
-    }
+    validateOrderItem
   );
 }
 
@@ -202,15 +194,9 @@ async function createSalesOrder(
     );
 
   if (!customer) {
-    const error =
-      new Error(
-        "Customer not found"
-      );
-
-    error.statusCode =
-      400;
-
-    throw error;
+    throw createAppError(
+      "Customer not found"
+    );
   }
 
   const productIds =
@@ -238,15 +224,9 @@ async function createSalesOrder(
     products.length !==
     productIds.length
   ) {
-    const error =
-      new Error(
-        "One or more products are invalid"
-      );
-
-    error.statusCode =
-      400;
-
-    throw error;
+    throw createAppError(
+      "One or more products are invalid"
+    );
   }
 
   const orderItems =
@@ -282,17 +262,9 @@ async function createSalesOrder(
     );
 
   const totalAmount =
-    orderItems.reduce(
-      (
-        sum,
-        item
-      ) =>
-        sum +
-        Number(
-          item.lineTotal
-        ),
-      0
-    );
+  calculateOrderTotal(
+    orderItems
+  );
 
   const orderNo =
     await generateOrderNo();
@@ -361,30 +333,19 @@ async function confirmSalesOrder(
         );
 
       if (!order) {
-        const error =
-          new Error(
-            "Sales order not found"
-          );
-
-        error.statusCode =
-          404;
-
-        throw error;
+        throw createAppError(
+          "Sales order not found",
+          404
+        );
       }
 
       if (
         order.status !==
         "DRAFT"
       ) {
-        const error =
-          new Error(
-            "Only draft orders can be confirmed"
-          );
-
-        error.statusCode =
-          400;
-
-        throw error;
+        throw createAppError(
+          "Only draft orders can be confirmed"
+        );
       }
 
       if (
@@ -392,15 +353,9 @@ async function confirmSalesOrder(
         order.items
           .length === 0
       ) {
-        const error =
-          new Error(
-            "Cannot confirm an order without items"
-          );
-
-        error.statusCode =
-          400;
-
-        throw error;
+        throw createAppError(
+          "Cannot confirm an order without items"
+        );
       }
 
       for (const item of order.items) {
@@ -408,29 +363,17 @@ async function confirmSalesOrder(
           item.quantity <=
           0
         ) {
-          const error =
-            new Error(
-              "Order item quantity must be greater than zero"
-            );
-
-          error.statusCode =
-            400;
-
-          throw error;
+          throw createAppError(
+            "Order item quantity must be greater than zero"
+          );
         }
 
         if (
           !item.product
         ) {
-          const error =
-            new Error(
-              "Order item product not found"
-            );
-
-          error.statusCode =
-            400;
-
-          throw error;
+          throw createAppError(
+            "Order item product not found"
+          );
         }
 
         if (
@@ -438,15 +381,9 @@ async function confirmSalesOrder(
             .stockQty <
           item.quantity
         ) {
-          const error =
-            new Error(
-              `Insufficient stock for product ${item.product.name}`
-            );
-
-          error.statusCode =
-            400;
-
-          throw error;
+          throw createAppError(
+            `Insufficient stock for product ${item.product.name}`
+          );
         }
       }
 
@@ -526,5 +463,4 @@ module.exports = {
   getSalesOrderById,
   createSalesOrder,
   confirmSalesOrder,
-  calculateLineTotal,
 };

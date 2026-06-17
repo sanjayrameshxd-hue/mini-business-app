@@ -2,6 +2,81 @@ const prisma = require(
   "../lib/prisma"
 );
 
+function createAppError(
+  message,
+  statusCode = 400
+) {
+  const error = new Error(
+    message
+  );
+
+  error.statusCode =
+    statusCode;
+
+  return error;
+}
+
+function validateProductInput(
+  data,
+  { partial = false } = {}
+) {
+  if (!partial) {
+    if (
+      !data.sku ||
+      !data.name
+    ) {
+      throw createAppError(
+        "SKU and name are required"
+      );
+    }
+  }
+
+  if (
+    data.price !== undefined &&
+    Number(data.price) <= 0
+  ) {
+    throw createAppError(
+      "Price must be greater than zero"
+    );
+  }
+
+  if (
+    data.stockQty !== undefined &&
+    Number(data.stockQty) < 0
+  ) {
+    throw createAppError(
+      "Stock quantity cannot be negative"
+    );
+  }
+}
+
+function normalizeProductInput(
+  data
+) {
+  return {
+    sku:
+      data.sku?.trim(),
+
+    name:
+      data.name?.trim(),
+
+    price:
+      data.price !== undefined
+        ? Number(
+            data.price
+          )
+        : undefined,
+
+    stockQty:
+      data.stockQty !==
+      undefined
+        ? Number(
+            data.stockQty
+          )
+        : undefined,
+  };
+}
+
 async function getProducts() {
   return prisma.product.findMany(
     {
@@ -23,15 +98,10 @@ async function getProductById(
     );
 
   if (!product) {
-    const error =
-      new Error(
-        "Product not found"
-      );
-
-    error.statusCode =
-      404;
-
-      throw error;
+    throw createAppError(
+      "Product not found",
+      404
+    );
   }
 
   return product;
@@ -40,25 +110,48 @@ async function getProductById(
 async function createProduct(
   productData
 ) {
+  validateProductInput(
+    productData
+  );
+
+  const normalized =
+    normalizeProductInput(
+      productData
+    );
+
+  const existingProduct =
+    await prisma.product.findUnique(
+      {
+        where: {
+          sku:
+            normalized.sku,
+        },
+      }
+    );
+
+  if (
+    existingProduct
+  ) {
+    throw createAppError(
+      "SKU already exists"
+    );
+  }
+
   return prisma.product.create(
     {
       data: {
         sku:
-          productData.sku,
+          normalized.sku,
 
         name:
-          productData.name,
+          normalized.name,
 
         price:
-          Number(
-            productData.price
-          ),
+          normalized.price,
 
         stockQty:
-          Number(
-            productData.stockQty ||
-              0
-          ),
+          normalized.stockQty ||
+          0,
 
         isActive:
           true,
@@ -81,15 +174,46 @@ async function updateProduct(
   if (
     !existingProduct
   ) {
-    const error =
-      new Error(
-        "Product not found"
+    throw createAppError(
+      "Product not found",
+      404
+    );
+  }
+
+  validateProductInput(
+    productData,
+    {
+      partial: true,
+    }
+  );
+
+  const normalized =
+    normalizeProductInput(
+      productData
+    );
+
+  if (
+    normalized.sku &&
+    normalized.sku !==
+      existingProduct.sku
+  ) {
+    const duplicateProduct =
+      await prisma.product.findUnique(
+        {
+          where: {
+            sku:
+              normalized.sku,
+          },
+        }
       );
 
-    error.statusCode =
-      404;
-
-    throw error;
+    if (
+      duplicateProduct
+    ) {
+      throw createAppError(
+        "SKU already exists"
+      );
+    }
   }
 
   return prisma.product.update(
@@ -98,25 +222,16 @@ async function updateProduct(
 
       data: {
         sku:
-          productData.sku,
+          normalized.sku,
+
         name:
-          productData.name,
+          normalized.name,
 
         price:
-          productData.price !==
-          undefined
-            ? Number(
-                productData.price
-              )
-            : undefined,
+          normalized.price,
 
         stockQty:
-          productData.stockQty !==
-          undefined
-            ? Number(
-                productData.stockQty
-              )
-            : undefined,
+          normalized.stockQty,
 
         isActive:
           productData.isActive,
@@ -136,15 +251,10 @@ async function deleteProduct(
     );
 
   if (!product) {
-    const error =
-      new Error(
-        "Product not found"
-      );
-
-    error.statusCode =
-      404;
-
-    throw error;
+    throw createAppError(
+      "Product not found",
+      404
+    );
   }
 
   await prisma.product.delete(
