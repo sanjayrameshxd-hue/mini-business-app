@@ -32,6 +32,10 @@ const errorHandler =
 const app =
   express();
 
+const authRoutes = require(
+  "./routes/auth.routes"
+);  
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -70,6 +74,11 @@ app.use(
 // Global error handler
 app.use(
   errorHandler
+);
+
+app.use(
+  "/api/auth",
+  authRoutes
 );
 
 module.exports =

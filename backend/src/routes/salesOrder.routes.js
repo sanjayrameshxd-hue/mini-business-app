@@ -1,38 +1,36 @@
-const express = require(
-  "express"
-);
+const express = require("express");
+const salesOrderController = require("../controllers/salesOrder.controller");
+const auth = require("../middleware/auth");
+const requireRole = require("../middleware/requireRole");
 
-const salesOrderController =
-  require(
-    "../controllers/salesOrder.controller"
-  );
+const router = express.Router();
 
-const router =
-  express.Router();
-
-// Get all sales orders
 router.get(
   "/",
+  auth,
+  requireRole("ADMIN", "SALES_USER"),
   salesOrderController.listSalesOrders
 );
 
-// Get sales order by ID
 router.get(
   "/:id",
+  auth,
+  requireRole("ADMIN", "SALES_USER"),
   salesOrderController.getSalesOrder
 );
 
-// Create sales order
 router.post(
   "/",
+  auth,
+  requireRole("ADMIN", "SALES_USER"),
   salesOrderController.createSalesOrder
 );
 
-// Confirm sales order
 router.post(
   "/:id/confirm",
+  auth,
+  requireRole("ADMIN"),
   salesOrderController.confirmSalesOrder
 );
 
-module.exports =
-  router;
+module.exports = router;

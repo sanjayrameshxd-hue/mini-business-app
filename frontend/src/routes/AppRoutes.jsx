@@ -15,61 +15,111 @@ import SalesOrdersPage from "../pages/SalesOrdersPage.jsx";
 import SalesOrderCreatePage from "../pages/SalesOrderCreatePage.jsx";
 import SalesOrderDetailPage from "../pages/SalesOrderDetailPage.jsx";
 
+import LoginPage from "../pages/LoginPage.jsx";
+
+import ProtectedRoute from "./ProtectedRoute";
+
 function AppRoutes() {
   return (
     <Routes>
+      {/* Public Route */}
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
       {/* Dashboard */}
       <Route
         path="/"
-        element={<DashboardPage />}
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
       />
 
       {/* Products */}
       <Route
         path="/products"
-        element={<ProductsPage />}
+        element={
+          <ProtectedRoute>
+            <ProductsPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/products/new"
-        element={<ProductFormPage />}
+        element={
+          <ProtectedRoute>
+            <ProductFormPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/products/:id/edit"
-        element={<ProductFormPage />}
+        element={
+          <ProtectedRoute>
+            <ProductFormPage />
+          </ProtectedRoute>
+        }
       />
 
       {/* Customers */}
       <Route
         path="/customers"
-        element={<CustomersPage />}
+        element={
+          <ProtectedRoute>
+            <CustomersPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/customers/new"
-        element={<CustomerFormPage />}
+        element={
+          <ProtectedRoute>
+            <CustomerFormPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/customers/:id/edit"
-        element={<CustomerFormPage />}
+        element={
+          <ProtectedRoute>
+            <CustomerFormPage />
+          </ProtectedRoute>
+        }
       />
 
       {/* Sales Orders */}
       <Route
         path="/sales-orders"
-        element={<SalesOrdersPage />}
+        element={
+          <ProtectedRoute>
+            <SalesOrdersPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/sales-orders/new"
-        element={<SalesOrderCreatePage />}
+        element={
+          <ProtectedRoute>
+            <SalesOrderCreatePage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/sales-orders/:id"
-        element={<SalesOrderDetailPage />}
+        element={
+          <ProtectedRoute>
+            <SalesOrderDetailPage />
+          </ProtectedRoute>
+        }
       />
     </Routes>
   );

@@ -1,0 +1,314 @@
+### Health Check
+
+GET http://localhost:3000/health
+
+###
+
+### Register User
+
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+"name": "Sales User",
+"email": "[sales@example.com](mailto:sales@example.com)",
+"password": "password123"
+}
+
+###
+
+### Login
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+"email": "[admin@example.com](mailto:admin@example.com)",
+"password": "admin123"
+}
+
+###
+
+### Get Products (Replace TOKEN)
+
+GET http://localhost:3000/api/products
+Authorization: Bearer TOKEN
+
+###
+
+### Create Product (ADMIN only)
+
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+"sku": "P100",
+"name": "Laptop",
+"price": 50000,
+"stockQty": 10
+}
+
+###
+
+### Get Product By Id
+
+GET http://localhost:3000/api/products/1
+Authorization: Bearer TOKEN
+
+###
+
+### Update Product
+
+PUT http://localhost:3000/api/products/1
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+"name": "Laptop Updated",
+"price": 55000,
+"stockQty": 15
+}
+
+###
+
+### Delete Product
+
+DELETE http://localhost:3000/api/products/1
+Authorization: Bearer TOKEN
+
+###
+
+### Get Customers
+
+GET http://localhost:3000/api/customers
+Authorization: Bearer TOKEN
+
+###
+
+### Create Customer (ADMIN only)
+
+POST http://localhost:3000/api/customers
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+"code": "C001",
+"name": "John Doe",
+"phone": "9876543210",
+"email": "[john@example.com](mailto:john@example.com)"
+}
+
+###
+
+### Get Customer By Id
+
+GET http://localhost:3000/api/customers/1
+Authorization: Bearer TOKEN
+
+###
+
+### Update Customer
+
+PUT http://localhost:3000/api/customers/1
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+"name": "John Doe Updated",
+"phone": "9999999999"
+}
+
+###
+
+### Delete Customer
+
+DELETE http://localhost:3000/api/customers/1
+Authorization: Bearer TOKEN
+
+###
+
+### Get Sales Orders
+
+GET http://localhost:3000/api/sales-orders
+Authorization: Bearer TOKEN
+
+###
+
+### Create Sales Order
+
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+Authorization: Bearer TOKEN
+
+{
+"customerId": 1,
+"items": [
+{
+"productId": 1,
+"quantity": 2,
+"rate": 50000
+}
+]
+}
+
+###
+
+### Get Sales Order By Id
+
+GET http://localhost:3000/api/sales-orders/1
+Authorization: Bearer TOKEN
+
+###
+
+### Confirm Sales Order (ADMIN only)
+
+POST http://localhost:3000/api/sales-orders/1/confirm
+Authorization: Bearer TOKEN
+
+###
+
+### Unauthorized Test
+
+GET http://localhost:3000/api/products
+
+###
+
+### Invalid Token Test
+
+GET http://localhost:3000/api/products
+Authorization: Bearer invalid-token
+
+
+### 1. Register SALES_USER
+
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+"name": "Sales User",
+"email": "[sales@example.com](mailto:sales@example.com)",
+"password": "password123"
+}
+
+###
+
+### 2. Login as ADMIN
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+"email": "[admin@example.com](mailto:admin@example.com)",
+"password": "admin123"
+}
+
+###
+
+### 3. Login as SALES_USER
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+"email": "[sales@example.com](mailto:sales@example.com)",
+"password": "password123"
+}
+
+###
+
+### 4. Create Product (ADMIN Token Required)
+
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer ADMIN_TOKEN
+
+{
+"sku": "AUTH-PROD-001",
+"name": "Authentication Product",
+"price": 100,
+"stockQty": 10
+}
+
+###
+
+### 5. Get Products (ADMIN or SALES_USER)
+
+GET http://localhost:3000/api/products
+Authorization: Bearer ADMIN_TOKEN
+
+###
+
+### 6. Create Customer (ADMIN Token Required)
+
+POST http://localhost:3000/api/customers
+Content-Type: application/json
+Authorization: Bearer ADMIN_TOKEN
+
+{
+"code": "AUTH-CUST-001",
+"name": "Auth Customer",
+"phone": "9876543210",
+"email": "[auth@example.com](mailto:auth@example.com)"
+}
+
+###
+
+### 7. Create Sales Order (ADMIN or SALES_USER)
+
+POST http://localhost:3000/api/sales-orders
+Content-Type: application/json
+Authorization: Bearer ADMIN_TOKEN
+
+{
+"customerId": 1,
+"items": [
+{
+"productId": 1,
+"quantity": 2,
+"rate": 100
+}
+]
+}
+
+###
+
+### 8. Confirm Sales Order (ADMIN Only)
+
+POST http://localhost:3000/api/sales-orders/1/confirm
+Authorization: Bearer ADMIN_TOKEN
+
+###
+
+### 9. Unauthorized Request
+
+GET http://localhost:3000/api/products
+
+###
+
+### 10. Invalid Token
+
+GET http://localhost:3000/api/products
+Authorization: Bearer invalid-token
+
+###
+
+### 11. SALES_USER tries to create Product (Should Return 403)
+
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer SALES_USER_TOKEN
+
+{
+"sku": "FORBIDDEN-001",
+"name": "Forbidden Product",
+"price": 100,
+"stockQty": 5
+}
+
+###
+
+### 12. SALES_USER tries to confirm Order (Should Return 403)
+
+POST http://localhost:3000/api/sales-orders/1/confirm
+Authorization: Bearer SALES_USER_TOKEN
