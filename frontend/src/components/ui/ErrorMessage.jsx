@@ -1,20 +1,15 @@
-function EmptyState({
-  title = "No data found",
-  description,
-}) {
-  return (
-    <div className="rounded-lg border border-dashed bg-white p-6 text-center shadow-sm">
-      <h2 className="text-base font-semibold text-gray-900">
-        {title}
-      </h2>
+function ErrorMessage({ message }) {
+  if (!message) {
+    return null;
+  }
 
-      {description ? (
-        <p className="mt-2 text-sm text-gray-600">
-          {description}
-        </p>
-      ) : null}
+  return (
+    <div className="mt-4 rounded-md border border-red-300 bg-red-50 p-3">
+      <p className="text-sm font-medium text-red-700">
+        {message}
+      </p>
     </div>
   );
 }
 
-export default EmptyState;
+export default ErrorMessage;

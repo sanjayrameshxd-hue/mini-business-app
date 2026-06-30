@@ -1,85 +1,36 @@
-const express =
-  require("express");
+const express = require("express");
+const cors = require("cors");
 
-const cors =
-  require("cors");
+const productRoutes = require("./routes/product.routes");
+const customerRoutes = require("./routes/customer.routes");
+const salesOrderRoutes = require("./routes/salesOrder.routes");
+const authRoutes = require("./routes/auth.routes");
 
-const productRoutes =
-  require(
-    "./routes/product.routes"
-  );
+const notFound = require("./middleware/notFound");
+const errorHandler = require("./middleware/errorHandler");
 
-const customerRoutes =
-  require(
-    "./routes/customer.routes"
-  );
+const app = express();
 
-const salesOrderRoutes =
-  require(
-    "./routes/salesOrder.routes"
-  );
-
-const notFound =
-  require(
-    "./middleware/notFound"
-  );
-
-const errorHandler =
-  require(
-    "./middleware/errorHandler"
-  );
-
-const app =
-  express();
-
-const authRoutes = require(
-  "./routes/auth.routes"
-);  
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health check route
-app.get(
-  "/health",
-  (req, res) => {
-    res.json({
-      status: "ok"
-    });
-  }
-);
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+  });
+});
 
 // API routes
-app.use(
-  "/api/products",
-  productRoutes
-);
+app.use("/api/auth", authRoutes);
 
-app.use(
-  "/api/customers",
-  customerRoutes
-);
+app.use("/api/products", productRoutes);
 
-app.use(
-  "/api/sales-orders",
-  salesOrderRoutes
-);
+app.use("/api/customers", customerRoutes);
 
-// Not found middleware
-app.use(
-  notFound
-);
+app.use("/api/sales-orders", salesOrderRoutes);
 
-// Global error handler
-app.use(
-  errorHandler
-);
+// Must always be LAST
+app.use(notFound);
+app.use(errorHandler);
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
-
-module.exports =
-  app;
+module.exports = app;

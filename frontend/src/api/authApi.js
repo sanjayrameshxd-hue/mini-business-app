@@ -2,11 +2,11 @@ import { handleResponse } from "./httpClient";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:3000/api";
+  "http://localhost:3000";
 
 export async function login(credentials) {
   const response = await fetch(
-    `${API_BASE_URL}/auth/login`,
+    `${API_BASE_URL}/api/auth/login`,
     {
       method: "POST",
       headers: {
@@ -21,7 +21,7 @@ export async function login(credentials) {
 
 export async function register(data) {
   const response = await fetch(
-    `${API_BASE_URL}/auth/register`,
+    `${API_BASE_URL}/api/auth/register`,
     {
       method: "POST",
       headers: {
