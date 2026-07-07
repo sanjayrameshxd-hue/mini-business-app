@@ -57,3 +57,27 @@ Run backend tests:
 cd backend
 npm test
 ```
+
+## CI and Deployment Readiness
+This project uses GitHub Actions for CI.
+The CI workflow runs on pull requests and pushes to `main`.
+CI checks include:
+- Backend unit tests
+- Backend integration tests with a temporary PostgreSQL service container
+- Prisma Client generation
+- Prisma migrations against the CI test database
+- Frontend tests
+- Frontend production build
+Backend unit tests do not start PostgreSQL, but the unit test job still p
+Backend integration tests use a temporary PostgreSQL database created by
+CI must never use the production database.
+Deployment workflow files are placeholders only. Real Hostinger credentia
+Required deployment secrets may include:
+- `HOSTINGER_HOST`
+- `HOSTINGER_USERNAME`
+- `HOSTINGER_PORT`
+- `HOSTINGER_SSH_KEY`
+- `HOSTINGER_BACKEND_PATH`
+- `HOSTINGER_FRONTEND_PATH`
+- `PRODUCTION_DATABASE_URL`
+- `PRODUCTION_API_BASE_URL`
