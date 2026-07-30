@@ -11,7 +11,16 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://your-frontend-url.onrender.com",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.get("/health", (req, res) => {
